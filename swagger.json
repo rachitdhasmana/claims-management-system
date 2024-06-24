@@ -1,0 +1,151 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Claims Management API",
+    "version": "1.0"
+  },
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/claims": {
+      "get": {
+        "summary": "Get all claims",
+        "responses": {
+          "200": {
+            "description": "A list of claims",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Claim"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new claim",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "formData",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "in": "formData",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "claim_type",
+            "in": "formData",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "claim_value",
+            "in": "formData",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "name": "attachment",
+            "in": "formData",
+            "required": false,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Claim created",
+            "schema": {
+              "$ref": "#/definitions/Claim"
+            }
+          }
+        }
+      }
+    },
+    "/claims/{id}": {
+      "put": {
+        "summary": "Update a claim",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Claim"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Claim updated",
+            "schema": {
+              "$ref": "#/definitions/Claim"
+            }
+          },
+          "404": {
+            "description": "Claim not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a claim",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Claim deleted"
+          },
+          "404": {
+            "description": "Claim not found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Claim": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "claim_type": {
+          "type": "string"
+        },
+        "claim_value": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string"
+        },
+        "attachment": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

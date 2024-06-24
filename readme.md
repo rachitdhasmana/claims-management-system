@@ -27,6 +27,7 @@ Ensure you have the following installed:
 - Python 3.8+
 - Flask
 - Flask-SQLAlchemy
+- Flask-Swagger-UI
 
 ### Installation
 
@@ -124,6 +125,7 @@ claims-management-system/
 ├── Dockerfile           # Dockerfile to create Docker image
 ├── start.sh             # Script to start Flask app and HTTP server
 ├── test_app.py          # Unit tests
+├── swagger.json         # API config spec for SwaggerUI
 │
 ├── templates/
 │   ├── index.html       # Homepage template
@@ -168,6 +170,18 @@ claims-management-system/
 #### `test_app.py`
 
 - Unit tests for the application covering adding, retrieving, updating, and deleting claims.
+
+### SwaggerUI
+
+Swagger is a web-based API documentation framework. It is used to create interactive documents for APIs which are built to serve a specific purpose. Swagger UI documents enjoy many advantages when compared to other document types:
+
+- It’s open-source
+- Enable you to create and share API documentation
+- Allows you to test APIs
+- Access API spec through url: http://<base-url>:<port>/swagger (http://127.0.0.1:5000/swagger)
+
+![img.png](swagger-img.png)
+
 
 ### Conclusion
 
