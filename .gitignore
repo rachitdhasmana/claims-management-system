@@ -1,0 +1,12 @@
+### mac storage file ###
+**/.DS_Store
+
+### Pycharm ###
+.idea
+
+### VS Code ###
+.vscode/
+
+# Environments
+.env
+.venv
