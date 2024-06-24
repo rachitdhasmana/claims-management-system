@@ -1,0 +1,69 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Claims Management</title>-->
+<!--    <style>-->
+<!--        body { font-family: Arial, sans-serif; margin: 20px; }-->
+<!--        .message { color: green; margin-bottom: 20px; }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <h1>Claims Management</h1>-->
+<!--    <div>-->
+<!--        <h2>Add Claim</h2>-->
+<!--        <div id="message"></div>-->
+<!--        <input type="text" id="title" placeholder="Title">-->
+<!--        <input type="text" id="description" placeholder="Description">-->
+<!--        <select id="claim_type">-->
+<!--            <option value="type 1">Type 1</option>-->
+<!--            <option value="type 2">Type 2</option>-->
+<!--            <option value="type 3">Type 3</option>-->
+<!--        </select>-->
+<!--        <input type="number" id="claim_value" placeholder="Claim Value">-->
+<!--        <button onclick="addClaim()">Add Claim</button>-->
+<!--    </div>-->
+<!--    <div>-->
+<!--        <h2>View Claims</h2>-->
+<!--        <a href="/claims">Go to Claims List</a>-->
+<!--    </div>-->
+<!--    <script src="/static/index.js"></script>-->
+<!--</body>-->
+<!--</html>-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .message { color: green; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Claims Management</h1>
+    <div>
+        <h2>Add Claim</h2>
+        <div id="message"></div>
+        <form id="claimForm" enctype="multipart/form-data">
+            <input type="text" id="title" placeholder="Title">
+            <input type="text" id="description" placeholder="Description">
+            <select id="claim_type">
+                <option value="type 1">Type 1</option>
+                <option value="type 2">Type 2</option>
+                <option value="type 3">Type 3</option>
+            </select>
+            <input type="number" id="claim_value" placeholder="Claim Value">
+            <input type="file" id="attachment" name="attachment">
+            <button type="button" onclick="addClaim()">Add Claim</button>
+        </form>
+    </div>
+    <div>
+        <h2>View Claims</h2>
+        <a href="/claims">Go to Claims List</a>
+    </div>
+    <script src="/static/index.js"></script>
+</body>
+</html>
