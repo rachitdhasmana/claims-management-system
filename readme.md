@@ -32,7 +32,7 @@ Ensure you have the following installed:
 
 1. **Clone the repository**:
     ```sh
-    git clone https://github.com/your-username/claims-management-system.git
+    git clone https://github.com/rachitdhasmana/claims-management-system.git
     cd claims-management-system
     ```
 
@@ -69,7 +69,7 @@ Ensure you have the following installed:
     docker run -p 5050:5050 -p 8080:8080 claims-management-system
     ```
 
-3. Open your browser and navigate to `http://localhost:5000` to view the application.
+3. Open your browser and navigate to `http://localhost:5050` to view the application.
 
    The uploaded files can be accessed via `http://localhost:8080`.
 
