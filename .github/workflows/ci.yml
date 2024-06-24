@@ -29,7 +29,7 @@ jobs:
       run: |
         source venv/bin/activate
         pip install flake8
-        flake8 .
+        flake8 --exclude=site-packages,bin --format=pylint .
 
     - name: Run unit tests
       run: |

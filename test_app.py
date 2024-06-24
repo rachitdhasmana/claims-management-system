@@ -1,7 +1,7 @@
 import os
 import unittest
 import tempfile
-from app import app, db, Claim
+from app import app, db
 
 
 class FlaskTestCase(unittest.TestCase):

@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 
@@ -60,7 +60,9 @@ def add_claim():
     attachment_filename = None
     if attachment:
         attachment_filename = secure_filename(attachment.filename)
-        attachment.save(os.path.join(app.config['UPLOAD_FOLDER'], attachment_filename))
+        attachment.save(
+            os.path.join(app.config['UPLOAD_FOLDER'], attachment_filename)
+        )
     new_claim = Claim(
         title=data['title'],
         description=data['description'],
