@@ -2,35 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claims List</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .message { color: green; margin-bottom: 20px; }
-        .claim { margin-bottom: 10px; }
-        .claim input, .claim select { margin-right: 10px; }
-        button { margin: 5px 0; }
-    </style>
+    <title>Claims</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h1>Claims List</h1>
-    <div id="message"></div>
+    <h1>Claims</h1>
     <div id="claims"></div>
-    <div>
-        <h2>Add Claim</h2>
-        <form id="claimForm" enctype="multipart/form-data">
-            <input type="text" id="title" placeholder="Title">
-            <input type="text" id="description" placeholder="Description">
-            <select id="claim_type">
-                <option value="type 1">Type 1</option>
-                <option value="type 2">Type 2</option>
-                <option value="type 3">Type 3</option>
-            </select>
-            <input type="number" id="claim_value" placeholder="Claim Value">
-            <input type="file" id="attachment" name="attachment">
-            <button type="button" onclick="addClaim()">Add Claim</button>
-        </form>
-    </div>
     <script src="/static/claims.js"></script>
+    <br>
+    <button id="add">Add Claim</button>
+    <button id="refresh">Refresh Claims</button>
+    <button id="logout">Logout</button>
 </body>
 </html>

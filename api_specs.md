@@ -1,162 +1,381 @@
-Sure! Here is a detailed API specification for the Claims Management System.
 
 ---
 
 # Claims Management API
 
+## Overview
+
+The Claims Management API provides endpoints for user registration, authentication, and CRUD operations on claims. This document outlines the available endpoints, their request parameters, response formats, and authentication mechanisms.
+
 ## Base URL
 
-The base URL for the API is `http://127.0.0.1:5000/api`
+```
+http://localhost:5000
+```
+
+## Authentication
+
+The API uses JWT (JSON Web Token) for authentication. Obtain the token by logging in and include it in the `Authorization` header as a Bearer token for protected endpoints.
 
 ## Endpoints
 
-### 1. Get All Claims
+### User Registration
 
-**Endpoint:** `GET /claims`
+#### POST /register
 
-Fetch all claims in the system.
+Registers a new user.
 
 **Request:**
 
-- Method: `GET`
-- URL: `/api/claims`
+- **Body:**
+  ```json
+  {
+    "username": "string",
+    "password": "string",
+    "role": "string" // "admin" or "user"
+  }
+  ```
 
-**Response:**
+**Responses:**
 
-- Status Code: `200 OK`
-- Body: JSON array of claims
+- **201 Created:**
+  ```json
+  {
+    "message": "User registered successfully"
+  }
+  ```
+- **400 Bad Request:**
+  ```json
+  {
+    "error": "Invalid input"
+  }
+  ```
 
-**Response Example:**
+### User Login
 
-```json
-[
+#### POST /login
+
+Logs in a user and returns a JWT token.
+
+**Request:**
+
+- **Body:**
+  ```json
+  {
+    "username": "string",
+    "password": "string"
+  }
+  ```
+
+**Responses:**
+
+- **200 OK:**
+  ```json
+  {
+    "access_token": "string"
+  }
+  ```
+- **401 Unauthorized:**
+  ```json
+  {
+    "error": "Invalid credentials"
+  }
+  ```
+
+### Create Claim
+
+#### POST /claims
+
+Creates a new claim. Requires authentication.
+
+**Request:**
+
+- **Headers:**
+  ```json
+  {
+    "Authorization": "Bearer <token>"
+  }
+  ```
+
+- **Body:**
+  ```json
+  {
+    "title": "string",
+    "description": "string",
+    "type": "string", // "type 1", "type 2", or "type 3"
+    "value": "number",
+    "attachment": "string"
+  }
+  ```
+
+**Responses:**
+
+- **201 Created:**
+  ```json
+  {
+    "id": "integer",
+    "user_id": "integer",
+    "title": "string",
+    "description": "string",
+    "type": "string",
+    "value": "number",
+    "status": "string", // "new"
+    "attachment": "string"
+  }
+  ```
+- **400 Bad Request:**
+  ```json
+  {
+    "error": "Invalid input"
+  }
+  ```
+- **401 Unauthorized:**
+  ```json
+  {
+    "error": "Unauthorized"
+  }
+  ```
+
+### Get All Claims
+
+#### GET /claims
+
+Fetches all claims. Requires authentication. Admins see all claims, users see only their own claims.
+
+**Request:**
+
+- **Headers:**
+  ```json
+  {
+    "Authorization": "Bearer <token>"
+  }
+  ```
+
+**Responses:**
+
+- **200 OK:**
+  ```json
+  [
     {
-        "id": 1,
-        "title": "Test Claim",
-        "description": "Test Description",
-        "claim_type": "type 1",
-        "claim_value": 100.0,
-        "status": "new",
-        "attachment": "test_file.txt"
+      "id": "integer",
+      "user_id": "integer",
+      "title": "string",
+      "description": "string",
+      "type": "string",
+      "value": "number",
+      "status": "string",
+      "attachment": "string"
     }
-]
-```
+  ]
+  ```
+- **401 Unauthorized:**
+  ```json
+  {
+    "error": "Unauthorized"
+  }
+  ```
 
-### 2. Create a New Claim
+### Update Claim
 
-**Endpoint:** `POST /claims`
+#### PUT /claims/{claim_id}
 
-Create a new claim.
-
-**Request:**
-
-- Method: `POST`
-- URL: `/api/claims`
-- Body: Form data including `title`, `description`, `claim_type`, `claim_value`, and optional `attachment` file.
-
-**Request Example:**
-
-```
-Content-Type: multipart/form-data
-
-title=Test Claim&description=Test Description&claim_type=type 1&claim_value=100.0&attachment=test_file.txt
-```
-
-**Response:**
-
-- Status Code: `200 OK`
-- Body: JSON object of the created claim
-
-**Response Example:**
-
-```json
-{
-    "id": 1,
-    "title": "Test Claim",
-    "description": "Test Description",
-    "claim_type": "type 1",
-    "claim_value": 100.0,
-    "status": "new",
-    "attachment": "test_file.txt"
-}
-```
-
-### 3. Update an Existing Claim
-
-**Endpoint:** `PUT /claims/<id>`
-
-Update an existing claim by ID.
+Updates a claim. Requires authentication. Users can only update their own claims.
 
 **Request:**
 
-- Method: `PUT`
-- URL: `/api/claims/<id>`
-- Body: JSON object including `title`, `description`, `claim_type`, `claim_value`, and `status`.
+- **Headers:**
+  ```json
+  {
+    "Authorization": "Bearer <token>"
+  }
+  ```
 
-**Request Example:**
+- **Body:**
+  ```json
+  {
+    "title": "string",
+    "description": "string",
+    "type": "string",
+    "value": "number",
+    "attachment": "string"
+  }
+  ```
 
-```
-Content-Type: application/json
+**Responses:**
 
-{
-    "title": "Updated Title",
-    "description": "Updated Description",
-    "claim_type": "type 2",
-    "claim_value": 200.0,
-    "status": "acknowledged"
-}
-```
+- **200 OK:**
+  ```json
+  {
+    "id": "integer",
+    "user_id": "integer",
+    "title": "string",
+    "description": "string",
+    "type": "string",
+    "value": "number",
+    "status": "string",
+    "attachment": "string"
+  }
+  ```
+- **400 Bad Request:**
+  ```json
+  {
+    "error": "Invalid input"
+  }
+  ```
+- **401 Unauthorized:**
+  ```json
+  {
+    "error": "Unauthorized"
+  }
+  ```
+- **403 Forbidden:**
+  ```json
+  {
+    "error": "Forbidden"
+  }
+  ```
+- **404 Not Found:**
+  ```json
+  {
+    "error": "Claim not found"
+  }
+  ```
 
-**Response:**
+### Delete Claim
 
-- Status Code: `200 OK`
-- Body: JSON object of the updated claim
+#### DELETE /claims/{claim_id}
 
-**Response Example:**
-
-```json
-{
-    "id": 1,
-    "title": "Updated Title",
-    "description": "Updated Description",
-    "claim_type": "type 2",
-    "claim_value": 200.0,
-    "status": "acknowledged",
-    "attachment": "test_file.txt"
-}
-```
-
-### 4. Delete an Existing Claim
-
-**Endpoint:** `DELETE /claims/<id>`
-
-Delete an existing claim by ID.
+Deletes a claim. Requires authentication. Admins can delete any claim, users can only delete their own claims.
 
 **Request:**
 
-- Method: `DELETE`
-- URL: `/api/claims/<id>`
+- **Headers:**
+  ```json
+  {
+    "Authorization": "Bearer <token>"
+  }
+  ```
 
-**Response:**
+**Responses:**
 
-- Status Code: `200 OK`
-- Body: JSON message confirming deletion
-
-**Response Example:**
-
-```json
-{
+- **200 OK:**
+  ```json
+  {
     "message": "Claim deleted"
-}
-```
+  }
+  ```
+- **401 Unauthorized:**
+  ```json
+  {
+    "error": "Unauthorized"
+  }
+  ```
+- **403 Forbidden:**
+  ```json
+  {
+    "error": "Forbidden"
+  }
+  ```
+- **404 Not Found:**
+  ```json
+  {
+    "error": "Claim not found"
+  }
+  ```
+
+## Models
+
+### User
+
+- **UserRegister:**
+  ```json
+  {
+    "username": "string",
+    "password": "string",
+    "role": "string" // "admin" or "user"
+  }
+  ```
+
+- **UserLogin:**
+  ```json
+  {
+    "username": "string",
+    "password": "string"
+  }
+  ```
+
+### Claim
+
+- **Claim:**
+  ```json
+  {
+    "id": "integer",
+    "user_id": "integer",
+    "title": "string",
+    "description": "string",
+    "type": "string",
+    "value": "number",
+    "status": "string",
+    "attachment": "string"
+  }
+  ```
+
+- **CreateClaim:**
+  ```json
+  {
+    "title": "string",
+    "description": "string",
+    "type": "string", // "type 1", "type 2", or "type 3"
+    "value": "number",
+    "attachment": "string"
+  }
+  ```
+
+- **UpdateClaim:**
+  ```json
+  {
+    "title": "string",
+    "description": "string",
+    "type": "string",
+    "value": "number",
+    "status": "string", // "new", "acknowledged", "approved", "denied"
+    "attachment": "string"
+  }
+  ```
+
+### Responses
+
+- **MessageResponse:**
+  ```json
+  {
+    "message": "string"
+  }
+  ```
+
+- **ErrorResponse:**
+  ```json
+  {
+    "error": "string"
+  }
+  ```
+
+- **LoginResponse:**
+  ```json
+  {
+    "access_token": "string"
+  }
+  ```
 
 ---
 
+
 ## Summary
 
+This document provides a comprehensive specification for the Claims Management API, detailing each endpoint's request and response formats, including models and authentication requirements. This will help developers understand how to interact with the API and what to expect in terms of data and security.
 This API allows you to manage claims with the following operations:
 
-1. **Get All Claims**: Retrieve a list of all claims.
+1. **Get All Claims {role: user}**: Retrieve a list of all claims created by user.
+2. **Get All Claims {role: admin}**: Retrieve a list of all claims created by all users.
 2. **Create a New Claim**: Add a new claim with a title, description, type, value, and optional attachment.
 3. **Update an Existing Claim**: Modify the details of an existing claim, including its status.
 4. **Delete an Existing Claim**: Remove a claim by its ID.
@@ -164,11 +383,10 @@ This API allows you to manage claims with the following operations:
 Each claim includes the following fields:
 
 - **id**: Unique identifier for the claim.
+- **user-id**: Unique identifier of the user/owner of the claim.
 - **title**: Title of the claim.
 - **description**: Description of the claim.
-- **claim_type**: Type of the claim (e.g., type 1, type 2, type 3).
-- **claim_value**: Monetary value of the claim.
+- **type**: Type of the claim (e.g., type 1, type 2, type 3).
+- **value**: Monetary value of the claim.
 - **status**: Current status of the claim (e.g., new, acknowledged, approved, denied).
 - **attachment**: Filename of the attached document (if any).
-
-Ensure you handle file uploads and JSON data appropriately when interacting with the API.

@@ -1,9 +1,14 @@
-import os
 import json
-from flask import Flask, request, jsonify, render_template
+import os
+
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.utils import secure_filename
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask import Blueprint, request, jsonify
+from werkzeug.utils import secure_filename
+
 
 SWAGGER_URL = '/swagger'
 API_URL = '/swagger.json'
@@ -11,35 +16,72 @@ API_URL = '/swagger.json'
 # setting up flask app and in-memory db config through ORM
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+app.config['SECRET_KEY'] = 'supersecretkey'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_PATH'] = 1024 * 1024 * 10  # 10 MB max upload size
+
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
+
+auth_bp = Blueprint('auth', __name__)
+claims_bp = Blueprint('claims', __name__)
+swaggerui_bp = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "Claims Management API"
+    }
+)
 
 # Ensure the upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 
+# schema model for User
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(10), nullable=False)  # admin or user
+
+
 # schema model for Claim
 class Claim(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(200), nullable=False)
-    claim_type = db.Column(db.String(20), nullable=False)
-    claim_value = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='new')
-    attachment = db.Column(db.String(200))
+    type = db.Column(db.String(20), nullable=False)
+    value = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(50), default='new', nullable=False)
+    attachment = db.Column(db.String(255))
+
+    def to_dict(self, role=''):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'title': self.title,
+            'description': self.description,
+            'type': self.type,
+            'value': self.value,
+            'status': self.status,
+            'attachment': self.attachment,
+            'allow_status_edit': True if role == 'admin' else False
+        }
 
 
-# making sure that db is initialised when app is loaded
-with app.app_context():
-    db.create_all()
-
-
-# render root page, creation of claims
+# render root page, registration of Users
 @app.route('/')
-def index():
-    return render_template('index.html')
+def register():
+    return render_template('register.html')
+
+
+# render login page
+@app.route('/login')
+def login():
+    return render_template('login.html')
 
 
 # render claims listing
@@ -48,25 +90,53 @@ def claims():
     return render_template('claims.html')
 
 
-# fetch claims and return to javascript
-@app.route('/api/claims', methods=['GET'])
+# render all claim page
+@app.route('/add')
+def index():
+    return render_template('add_claim.html')
+
+
+# handler for register user post call
+@auth_bp.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+    new_user = User(username=data['username'], password=hashed_password, role=data['role'])
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'message': 'User registered successfully'}), 201
+
+
+# handler for login user post call
+@auth_bp.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    user = User.query.filter_by(username=data['username']).first()
+    if user and bcrypt.check_password_hash(user.password, data['password']):
+        access_token = create_access_token(identity={'username': user.username, 'role': user.role})
+        return jsonify(access_token=access_token)
+    return jsonify({'message': 'Invalid credentials'}), 401
+
+
+# handler for fetching the claims get call
+@claims_bp.route('/api/claims', methods=['GET'])
+@jwt_required()
 def get_claims():
-    claims = Claim.query.all()
-    result = [{
-        'id': claim.id,
-        'title': claim.title,
-        'description': claim.description,
-        'claim_type': claim.claim_type,
-        'claim_value': claim.claim_value,
-        'status': claim.status,
-        'attachment': claim.attachment
-    } for claim in claims]
-    return jsonify(result)
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(username=current_user['username']).first()
+    if user.role == 'admin':
+        claims = Claim.query.all()
+    else:
+        claims = Claim.query.filter_by(user_id=user.id).all()
+    return jsonify([claim.to_dict(user.role) for claim in claims])
 
 
-# add claim's record to the DB
-@app.route('/api/claims', methods=['POST'])
+# handler for adding the claim post call
+@claims_bp.route('/api/claims', methods=['POST'])
+@jwt_required()
 def add_claim():
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(username=current_user['username']).first()
     data = request.form
     attachment = request.files.get('attachment')
     attachment_filename = None
@@ -75,59 +145,53 @@ def add_claim():
         attachment.save(
             os.path.join(app.config['UPLOAD_FOLDER'], attachment_filename)
         )
-    new_claim = Claim(
-        title=data['title'],
-        description=data['description'],
-        claim_type=data['claim_type'],
-        claim_value=data['claim_value'],
-        attachment=attachment_filename
-    )
+    new_claim = Claim(user_id=user.id,
+                      title=data['title'],
+                      description=data['description'],
+                      type=data['type'],
+                      value=data['value'],
+                      attachment=attachment_filename)
     db.session.add(new_claim)
     db.session.commit()
-    return jsonify({
-        'id': new_claim.id,
-        'title': new_claim.title,
-        'description': new_claim.description,
-        'claim_type': new_claim.claim_type,
-        'claim_value': new_claim.claim_value,
-        'status': new_claim.status,
-        'attachment': new_claim.attachment
-    })
+    return jsonify(new_claim.to_dict(user.role)), 201
 
 
-# update claim's record in DB
-@app.route('/api/claims/<int:id>', methods=['PUT'])
-def update_claim(id):
-    data = request.json
-    claim = Claim.query.get(id)
+# handler for updating the claim put call
+@claims_bp.route('/api/claims/<int:claim_id>', methods=['PUT'])
+@jwt_required()
+def update_claim(claim_id):
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(username=current_user['username']).first()
+    claim = Claim.query.get_or_404(claim_id)
+    if user.role != 'admin' and claim.user_id != user.id:
+        return jsonify({'message': 'Permission denied'}), 403
     if not claim:
         return jsonify({'message': 'Claim not found'}), 404
-    claim.title = data['title']
-    claim.description = data['description']
-    claim.claim_type = data['claim_type']
-    claim.claim_value = data['claim_value']
-    claim.status = data['status']
+    data = request.json
+    claim.title = data.get('title', claim.title)
+    claim.description = data.get('description', claim.description)
+    claim.type = data.get('type', claim.type)
+    claim.value = data.get('value', claim.value)
+    claim.status = data.get('status', claim.status)
+    claim.attachment = data.get('attachment', claim.attachment)
     db.session.commit()
-    return jsonify({
-        'id': claim.id,
-        'title': claim.title,
-        'description': claim.description,
-        'claim_type': claim.claim_type,
-        'claim_value': claim.claim_value,
-        'status': claim.status,
-        'attachment': claim.attachment
-    })
+    return jsonify(claim.to_dict(user.role)), 200
 
 
-# delete claim with specific id from DB
-@app.route('/api/claims/<int:id>', methods=['DELETE'])
-def delete_claim(id):
-    claim = Claim.query.get(id)
+# handler for deleting the claim delete call
+@claims_bp.route('/api/claims/<int:claim_id>', methods=['DELETE'])
+@jwt_required()
+def delete_claim(claim_id):
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(username=current_user['username']).first()
+    claim = Claim.query.get_or_404(claim_id)
+    if user.role != 'admin' and claim.user_id != user.id:
+        return jsonify({'message': 'Permission denied'}), 403
     if not claim:
         return jsonify({'message': 'Claim not found'}), 404
     db.session.delete(claim)
     db.session.commit()
-    return jsonify({'message': 'Claim deleted'})
+    return jsonify({'message': 'Claim deleted'}), 200
 
 
 # setting up SwaggerUI for API specification
@@ -137,15 +201,14 @@ def swagger_json():
         return jsonify(json.load(f))
 
 
-swaggerui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': "Claims Management API"
-    }
-)
+# registering blueprint within app
+app.register_blueprint(auth_bp)
+app.register_blueprint(claims_bp)
+app.register_blueprint(swaggerui_bp, url_prefix=SWAGGER_URL)
 
-app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+# initialising the db when app is loaded
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)

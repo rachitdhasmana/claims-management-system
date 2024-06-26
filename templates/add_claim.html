@@ -8,6 +8,7 @@
         body { font-family: Arial, sans-serif; margin: 20px; }
         .message { color: green; margin-bottom: 20px; }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>Claims Management</h1>
@@ -17,12 +18,12 @@
         <form id="claimForm" enctype="multipart/form-data">
             <input type="text" id="title" placeholder="Title">
             <input type="text" id="description" placeholder="Description">
-            <select id="claim_type">
+            <select id="type">
                 <option value="type 1">Type 1</option>
                 <option value="type 2">Type 2</option>
                 <option value="type 3">Type 3</option>
             </select>
-            <input type="number" id="claim_value" placeholder="Claim Value">
+            <input type="number" id="value" placeholder="Claim Value">
             <input type="file" id="attachment" name="attachment">
             <button type="button" onclick="addClaim()">Add Claim</button>
         </form>
@@ -31,6 +32,6 @@
         <h2>View Claims</h2>
         <a href="/claims">Go to Claims List</a>
     </div>
-    <script src="/static/index.js"></script>
+    <script src="/static/add_claim.js"></script>
 </body>
 </html>

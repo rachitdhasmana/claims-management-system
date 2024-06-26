@@ -10,3 +10,5 @@
 # Environments
 .env
 .venv
+/venv/
+/uploads/
