@@ -21,16 +21,24 @@ class ClaimsManagementTestCase(unittest.TestCase):
     def create_test_data(self):
         password = 'password'
         bcrypt = Bcrypt(app)
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        admin_user = User(username='admin', password=hashed_password, role='admin')
-        normal_user = User(username='user', password=hashed_password, role='user')
+        hashed_password = \
+            bcrypt.generate_password_hash(password).decode('utf-8')
+        admin_user = \
+            User(username='admin', password=hashed_password, role='admin')
+        normal_user = \
+            User(username='user', password=hashed_password, role='user')
         db.session.add(admin_user)
         db.session.add(normal_user)
         db.session.commit()
 
     def get_token(self, username):
         user = User.query.filter_by(username=username).first()
-        return create_access_token(identity={'username': user.username, 'role': user.role})
+        return create_access_token(
+            identity={
+                'username': user.username,
+                'role': user.role
+            }
+        )
 
     def test_register_user(self):
         response = self.app.post('/register', json={
@@ -39,7 +47,8 @@ class ClaimsManagementTestCase(unittest.TestCase):
             'role': 'user'
         })
         self.assertEqual(response.status_code, 201)
-        self.assertIn('User registered successfully', response.get_json()['message'])
+        self.assertIn('User registered successfully',
+                      response.get_json()['message'])
 
     def test_login_user(self):
         response = self.app.post('/login', json={

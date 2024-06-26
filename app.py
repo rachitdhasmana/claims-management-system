@@ -4,7 +4,10 @@ import os
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (JWTManager,
+                                create_access_token,
+                                jwt_required,
+                                get_jwt_identity)
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
@@ -98,10 +101,15 @@ def index():
 
 # handler for register user post call
 @auth_bp.route('/register', methods=['POST'])
-def register():
+def register_user():
     data = request.json
-    hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
-    new_user = User(username=data['username'], password=hashed_password, role=data['role'])
+    hashed_password = \
+        bcrypt.generate_password_hash(data['password']).decode('utf-8')
+    new_user = User(
+        username=data['username'],
+        password=hashed_password,
+        role=data['role']
+    )
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'message': 'User registered successfully'}), 201
@@ -109,11 +117,16 @@ def register():
 
 # handler for login user post call
 @auth_bp.route('/login', methods=['POST'])
-def login():
+def login_user():
     data = request.json
     user = User.query.filter_by(username=data['username']).first()
     if user and bcrypt.check_password_hash(user.password, data['password']):
-        access_token = create_access_token(identity={'username': user.username, 'role': user.role})
+        access_token = create_access_token(
+            identity={
+                'username': user.username,
+                'role': user.role
+            }
+        )
         return jsonify(access_token=access_token)
     return jsonify({'message': 'Invalid credentials'}), 401
 
