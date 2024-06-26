@@ -42,6 +42,7 @@ User -> UI -> Flask API -> SQLAlchemy -> In-Memory DB
     - Implement detailed error handling and logging.
     - Add caching for frequently accessed data.
     - Implement pagination for claims listing.
+    - Integrating with No-code/Lo-code Workflow Automation.
 
 4. **Phase 4: Maintenance and Continuous Improvements**
     - Upgrade dependencies and frameworks as needed.
@@ -76,6 +77,7 @@ User -> UI -> Flask API -> SQLAlchemy -> In-Memory DB
 | Implement status updates                                            | 1 week         | CRUD operations   |
 | Add authentication and authorization                                | 2 weeks        | User management   |
 | Detailed error handling and logging                                 | 1 week         | CRUD operations   |
+| Integrating workflow automation                                     | 1 week         | CRUD operations   |
 | Optimize database queries                                           | 2 weeks        | Database setup    |
 | Add caching                                                         | 1 week         | Database setup    |
 | Implement pagination                                                | 1 week         | CRUD operations   |
@@ -113,6 +115,7 @@ User -> UI -> Flask API -> SQLAlchemy -> In-Memory DB
     - Optimization of database queries.
     - Caching with Redis.
     - Pagination.
+    - Workflow automation integration
 
 4. **Phase 4**:
     - Framework and dependency upgrades.
@@ -121,7 +124,7 @@ User -> UI -> Flask API -> SQLAlchemy -> In-Memory DB
 5. **Phase 5**:
    - Moving solution to cloud (Opex model).
    - Evaluate services with cost, performance and benefits. 
-   - Workflow automation
+   - CI/CD workflow automation
 
 #### Risk Analysis
 

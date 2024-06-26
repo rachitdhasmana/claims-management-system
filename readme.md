@@ -12,6 +12,8 @@ This project is a simple full-stack application for managing claims. It uses Pyt
 6. [API Endpoints](#api-endpoints)
 7. [Running Tests](#running-tests)
 8. [Folder Structure](#folder-structure)
+9. [Project Plan](#project-plan)
+10. [Test Plan](#test-plan)
 
 ### Features
 
@@ -116,7 +118,7 @@ Ensure you have the following installed:
     - Response: JSON message confirming deletion.
 
 ### Detailed API Specs
-- **Detailed API specs can be found : [here](api_specs.md)**
+- **Detailed API specs can be found [here](api_specs.md)**
 
 ### Running Tests
 
@@ -227,6 +229,12 @@ Swagger is a web-based API documentation framework. It is used to create interac
 
 ![img.png](swagger-img.png)
 
+
+### Project Plan
+Detailed project plan for the project can be found **[here](project-plan.md)**
+
+### Test Plan
+Detailed Test plan for the project can be found **[here](test-plan.md)**
 
 ### Conclusion
 
