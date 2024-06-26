@@ -16,6 +16,7 @@ This project is a simple full-stack application for managing claims. It uses Pyt
 ### Features
 
 - Add, view, update, and delete claims.
+- Role based access to resources (User, Admin)
 - Claims have titles, descriptions, types, values, statuses, and attachments.
 - Supports file uploads for attachments.
 - Claims statuses can be changed and include: new, acknowledged, approved, and denied.
@@ -24,10 +25,13 @@ This project is a simple full-stack application for managing claims. It uses Pyt
 
 Ensure you have the following installed:
 
-- Python 3.8+
+- Python 3.9+
 - Flask
 - Flask-SQLAlchemy
 - Flask-Swagger-UI
+- Flask-Bcrypt
+- Flask-Jwt-Extended
+- Werkzeug
 
 ### Installation
 
@@ -69,13 +73,29 @@ Ensure you have the following installed:
     ```sh
     docker run -p 5050:5050 -p 8080:8080 claims-management-system
     ```
+3. The docker image can also be downloaded from docker-hub:   
+   - Docker-hub hosted image can be found [here](https://hub.docker.com/repository/docker/rachitdhasmana/claims-management-system/general)
+   ```sh
+    docker pull rachitdhasmana/claims-management-system:latest
+    docker run -p 5050:5050 -p 8080:8080 rachitdhasmana/claims-management-system
+    ```
 
-3. Open your browser and navigate to `http://localhost:5050` to view the application.
+4. Open your browser and navigate to `http://localhost:5050` to view the application.
 
    The uploaded files can be accessed via `http://localhost:8080`.
 
 
 ### API Endpoints
+
+- **POST /register**
+    - Register a new user.
+    - Request: Form data including title, description, claim_type, claim_value, and optional attachment file.
+    - Response: JSON message confirming registration of user.
+- 
+- **POST /login**
+    - login with user credentials.
+    - Request: JSON data with username and password.
+    - Response: JSON message confirming login.
 
 - **GET /api/claims**
     - Fetch all claims.
@@ -128,12 +148,16 @@ claims-management-system/
 ├── swagger.json         # API config spec for SwaggerUI
 │
 ├── templates/
-│   ├── index.html       # Homepage template
+│   ├── register.html    # register user template
+│   ├── login.html       # login user template
+│   ├── add_claim.html   # add claim template
 │   └── claims.html      # Claims listing template
 │
 ├── static/
-│   ├── index.js         # JavaScript for homepage
-│   └── claims.js        # JavaScript for claims page
+│   ├── register.js      # JavaScript for register page handling
+│   ├── login.js         # JavaScript for login page handling
+│   ├── add_claim.js     # JavaScript for add claim page handling
+│   └── claims.js        # JavaScript for claims page handling
 │
 └── uploads/             # Folder for uploaded files
 ```
@@ -142,13 +166,24 @@ claims-management-system/
 
 #### `app.py`
 
-- **Models**: Defines the `Claim` model with fields for `title`, `description`, `claim_type`, `claim_value`, `status`, and `attachment`.
+- **Models**: Defines the `User` model with fields for `username`, `password` and `role` and  `Claim` model with fields for `title`, `description`, `claim_type`, `claim_value`, `status`, and `attachment`.
 - **Routes**:
-  - `/` and `/claims`: Render the main pages.
+  - `/register` and `/login`: Render the register and login pages.
+  - `/add`: Render add claim page
   - `/api/claims`: API endpoints for managing claims.
   - Handles file uploads for claim attachments.
+  - Handles JWT token based authentication.
 
-#### `templates/index.html`
+#### `templates/register.html`
+
+- Form for registering new user with field for username and password.
+
+#### `templates/login.html`
+
+- Form for logging in the new user with username and password.
+- passes the response token to the claims template.
+
+#### `templates/add_claim.html`
 
 - Form for adding new claims with fields for title, description, type, value, and file upload.
 - Links to the claims listing page.
@@ -157,14 +192,24 @@ claims-management-system/
 
 - Displays all claims with options to update or delete each one.
 - Includes fields for title, description, type, value, status, and attachment.
+- Button to add new claim.
+- Button to log out of current user session.
 
-#### `static/index.js`
+#### `static/register.js`
 
-- Handles adding new claims via the form on the homepage.
+- Handles registration of new user, calls login template after successful registration.
+
+#### `static/login.js`
+
+- Handles loggin in user with username and password, pass on JWT token to claims template.
+
+#### `static/add_claim.js`
+
+- Handles adding new claims via the form on the add_claim template.
 
 #### `static/claims.js`
 
-- Fetches and displays all claims.
+- Fetches and displays claims.
 - Handles updating and deleting claims.
 
 #### `test_app.py`

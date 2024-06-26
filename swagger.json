@@ -91,7 +91,7 @@
         }
       }
     },
-    "/claims": {
+    "/api/claims": {
       "get": {
         "summary": "Get all claims",
         "security": [
@@ -176,7 +176,7 @@
         }
       }
     },
-    "/claims/{claim_id}": {
+    "/api/claims/{claim_id}": {
       "put": {
         "summary": "Update a claim",
         "security": [

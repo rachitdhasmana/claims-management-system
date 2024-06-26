@@ -84,7 +84,7 @@ Logs in a user and returns a JWT token.
 
 ### Create Claim
 
-#### POST /claims
+#### POST /api/claims
 
 Creates a new claim. Requires authentication.
 
@@ -138,7 +138,7 @@ Creates a new claim. Requires authentication.
 
 ### Get All Claims
 
-#### GET /claims
+#### GET /api/claims
 
 Fetches all claims. Requires authentication. Admins see all claims, users see only their own claims.
 
@@ -177,7 +177,7 @@ Fetches all claims. Requires authentication. Admins see all claims, users see on
 
 ### Update Claim
 
-#### PUT /claims/{claim_id}
+#### PUT /api/claims/{claim_id}
 
 Updates a claim. Requires authentication. Users can only update their own claims.
 
@@ -243,7 +243,7 @@ Updates a claim. Requires authentication. Users can only update their own claims
 
 ### Delete Claim
 
-#### DELETE /claims/{claim_id}
+#### DELETE /api/claims/{claim_id}
 
 Deletes a claim. Requires authentication. Admins can delete any claim, users can only delete their own claims.
 
