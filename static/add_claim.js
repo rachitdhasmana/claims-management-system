@@ -1,9 +1,14 @@
-function addClaim() {
+$(document).ready(function() {
+
     var token = localStorage.getItem('token');
-    console.log(token);
     if (!token) {
         window.location.href = '/login';
     }
+
+});
+
+function addClaim() {
+    var token = localStorage.getItem('token');
 
     const form = document.getElementById('claimForm');
     const formData = new FormData(form);

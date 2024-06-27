@@ -1,5 +1,6 @@
 import json
 import os
+import bleach
 
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
@@ -11,7 +12,6 @@ from flask_jwt_extended import (JWTManager,
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-
 
 SWAGGER_URL = '/swagger'
 API_URL = '/swagger.json'
@@ -75,6 +75,13 @@ class Claim(db.Model):
         }
 
 
+def sanitize_input(input):
+    if input:
+        return bleach.clean(input)
+
+    return input
+
+
 # render root page, registration of Users
 @app.route('/')
 def register():
@@ -106,9 +113,9 @@ def register_user():
     hashed_password = \
         bcrypt.generate_password_hash(data['password']).decode('utf-8')
     new_user = User(
-        username=data['username'],
+        username=sanitize_input(data['username']),
         password=hashed_password,
-        role=data['role']
+        role=sanitize_input(data['role'])
     )
     db.session.add(new_user)
     db.session.commit()
@@ -159,10 +166,10 @@ def add_claim():
             os.path.join(app.config['UPLOAD_FOLDER'], attachment_filename)
         )
     new_claim = Claim(user_id=user.id,
-                      title=data['title'],
-                      description=data['description'],
-                      type=data['type'],
-                      value=data['value'],
+                      title=sanitize_input(data['title']),
+                      description=sanitize_input(data['description']),
+                      type=sanitize_input(data['type']),
+                      value=sanitize_input(data['value']),
                       attachment=attachment_filename)
     db.session.add(new_claim)
     db.session.commit()
@@ -181,12 +188,12 @@ def update_claim(claim_id):
     if not claim:
         return jsonify({'message': 'Claim not found'}), 404
     data = request.json
-    claim.title = data.get('title', claim.title)
-    claim.description = data.get('description', claim.description)
-    claim.type = data.get('type', claim.type)
-    claim.value = data.get('value', claim.value)
-    claim.status = data.get('status', claim.status)
-    claim.attachment = data.get('attachment', claim.attachment)
+    claim.title = sanitize_input(data.get('title', claim.title))
+    claim.description = sanitize_input(data.get('description', claim.description))
+    claim.type = sanitize_input(data.get('type', claim.type))
+    claim.value = sanitize_input(str(data.get('value', claim.value)))
+    claim.status = sanitize_input(data.get('status', claim.status))
+    claim.attachment = sanitize_input(data.get('attachment', claim.attachment))
     db.session.commit()
     return jsonify(claim.to_dict(user.role)), 200
 
@@ -222,6 +229,16 @@ app.register_blueprint(swaggerui_bp, url_prefix=SWAGGER_URL)
 # initialising the db when app is loaded
 with app.app_context():
     db.create_all()
+
+
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
+
 
 if __name__ == '__main__':
     app.run(debug=True)

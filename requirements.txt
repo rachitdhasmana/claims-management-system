@@ -4,3 +4,4 @@ werkzeug==3.0.3
 flask-swagger-ui==4.11.1
 flask-bcrypt==1.0.1
 flask-jwt-extended==4.6.0
+Bleach==6.1.0

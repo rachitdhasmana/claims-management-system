@@ -1,6 +1,11 @@
 
 $(document).ready(function() {
 
+    var token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/login';
+    }
+
     fetchClaims();
 
     // add new claim
@@ -20,13 +25,16 @@ $(document).ready(function() {
     });
 });
 
+function sanitizeInput(input) {
+    if (input) {
+        return DOMPurify.sanitize(input);
+    }
+    return input;
+}
+
 // Function to fetch claims
 function fetchClaims() {
     var token = localStorage.getItem('token');
-    console.log(token);
-    if (!token) {
-        window.location.href = '/login';
-    }
 
     $.ajax({
         url: '/api/claims',
@@ -41,20 +49,20 @@ function fetchClaims() {
                 const claimDiv = document.createElement('div');
                 claimDiv.className = 'claim';
                 claimDiv.innerHTML = `
-                    <input type="text" value="${claim.title}" data-id="${claim.id}" class="title">
-                    <input type="text" value="${claim.description}" data-id="${claim.id}" class="description">
+                    <input type="text" value="${sanitizeInput(claim.title)}" data-id="${claim.id}" class="title">
+                    <input type="text" value="${sanitizeInput(claim.description)}" data-id="${claim.id}" class="description">
                     <select data-id="${claim.id}" class="type">
-                        <option value="type 1" ${claim.type === 'type 1' ? 'selected' : ''}>Type 1</option>
-                        <option value="type 2" ${claim.type === 'type 2' ? 'selected' : ''}>Type 2</option>
-                        <option value="type 3" ${claim.type === 'type 3' ? 'selected' : ''}>Type 3</option>
+                        <option value="type 1" ${sanitizeInput(claim.type) === 'type 1' ? 'selected' : ''}>Type 1</option>
+                        <option value="type 2" ${sanitizeInput(claim.type) === 'type 2' ? 'selected' : ''}>Type 2</option>
+                        <option value="type 3" ${sanitizeInput(claim.type) === 'type 3' ? 'selected' : ''}>Type 3</option>
                     </select>
-                    <input type="number" value="${claim.value}" data-id="${claim.id}" class="value">
+                    <input type="number" value="${sanitizeInput(claim.value)}" data-id="${claim.id}" class="value">
 
                     <select data-id="${claim.id}" class="status" ${claim.allow_status_edit?'':'disabled'}>
-                        <option value="new" ${claim.status === 'new' ? 'selected' : ''}>New</option>
-                        <option value="acknowledged" ${claim.status === 'acknowledged' ? 'selected' : ''}>Acknowledged</option>
-                        <option value="approved" ${claim.status === 'approved' ? 'selected' : ''}>Approved</option>
-                        <option value="denied" ${claim.status === 'denied' ? 'selected' : ''}>Denied</option>
+                        <option value="new" ${sanitizeInput(claim.status) === 'new' ? 'selected' : ''}>New</option>
+                        <option value="acknowledged" ${sanitizeInput(claim.status) === 'acknowledged' ? 'selected' : ''}>Acknowledged</option>
+                        <option value="approved" ${sanitizeInput(claim.status) === 'approved' ? 'selected' : ''}>Approved</option>
+                        <option value="denied" ${sanitizeInput(claim.status) === 'denied' ? 'selected' : ''}>Denied</option>
                     </select>
 
                     ${claim.attachment ? `<a href="http://localhost:8080/uploads/${claim.attachment}" target="_blank">View Attachment</a>` : ''}
@@ -66,17 +74,13 @@ function fetchClaims() {
             });
         },
         error: function(response) {
-            alert('Failed to fetch claims');
+//            alert('Failed to fetch claims');
         }
     });
 }
 
 function updateClaim(id) {
     var token = localStorage.getItem('token');
-    console.log(token);
-    if (!token) {
-        window.location.href = '/login';
-    }
 
     const title = document.querySelector(`.title[data-id='${id}']`).value;
     const description = document.querySelector(`.description[data-id='${id}']`).value;
@@ -110,11 +114,7 @@ function updateClaim(id) {
 }
 
 function deleteClaim(id) {
-var token = localStorage.getItem('token');
-    console.log(token);
-    if (!token) {
-        window.location.href = '/login';
-    }
+    var token = localStorage.getItem('token');
 
     $.ajax({
         url: `/api/claims/${id}`,
