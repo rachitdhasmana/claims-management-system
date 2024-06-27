@@ -189,7 +189,8 @@ def update_claim(claim_id):
         return jsonify({'message': 'Claim not found'}), 404
     data = request.json
     claim.title = sanitize_input(data.get('title', claim.title))
-    claim.description = sanitize_input(data.get('description', claim.description))
+    claim.description = \
+        sanitize_input(data.get('description', claim.description))
     claim.type = sanitize_input(data.get('type', claim.type))
     claim.value = sanitize_input(str(data.get('value', claim.value)))
     claim.status = sanitize_input(data.get('status', claim.status))
@@ -236,7 +237,8 @@ def set_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Strict-Transport-Security'] = \
+        'max-age=31536000; includeSubDomains'
     return response
 
 
