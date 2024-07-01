@@ -231,7 +231,7 @@ Swagger is a web-based API documentation framework. It is used to create interac
 
 
 ### Project Plan
-Detailed project plan for the project can be found **[here](project-plan.md)**
+Detailed project plan for the project can be found **[here](Project-plan.md)**
 
 ### Test Plan
 Detailed Test plan for the project can be found **[here](test-plan.md)**
